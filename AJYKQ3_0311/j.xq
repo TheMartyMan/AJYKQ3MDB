@@ -1,1 +1,0 @@
-count(doc("XY_ovoda.xml")//csoport)
