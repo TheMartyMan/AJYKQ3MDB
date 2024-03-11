@@ -1,1 +1,1 @@
-count(doc("XY_ovoda.xml")//csoport)
+count(doc("AJYKQ3_ovoda.xml")//csoport)
