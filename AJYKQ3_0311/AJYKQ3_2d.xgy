@@ -1,2 +1,2 @@
-let $maxszulido := max(doc("XY_ovoda.xml")//dolgozo[beosztas = "óvónő"]/szulido)
-return doc("XY_ovoda.xml")//dolgozo[beosztas = "óvónő" and szulido = $maxszulido]/nev/text()
+let $maxszulido := max(doc("AJYKQ3_ovoda.xml")//dolgozo[beosztas = "óvónő"]/szulido)
+return doc("AJYKQ3_ovoda.xml")//dolgozo[beosztas = "óvónő" and szulido = $maxszulido]/nev/text()
