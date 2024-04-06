@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.msc.MoziMapper">
+        <resultMap id="moziResult" type="mozi">
+            <id property="moziID" column="moziID"/>
+            <result property="mNev" column="mNev"/>
+            <result property="Hely" column="Hely"/>
+        </resultMap>
+        
+        <select id="findAllCinemas" resultType="mozi" resultMap="moziResult">
+        	SELECT * FROM mozik;
+    	</select>
+    	
+    	<select id="findCinemaById" parameterType="int" resultType="mozi" resultMap="moziResult">
+            SELECT moziID, mNev, Hely FROM mozik WHERE moziID = #{moziID}
+        </select>
+    	
+    	<delete id="deleteCinemaById" parameterType="int">
+		    DELETE FROM mozik WHERE moziID = #{moziID};
+		</delete>
+		
+		<insert id="insertCinema" parameterType="mozi" keyProperty="cinemaID">
+            INSERT into mozik(moziID, mNev, Hely) 
+            	VALUES(#{moziID},#{mNev},#{Hely})
+        </insert>
+        
+    </mapper>

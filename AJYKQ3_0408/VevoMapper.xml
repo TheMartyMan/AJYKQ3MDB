@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.msc.VevoMapper">    
+        <resultMap id="vevoResult" type="vevo">
+            <id property="vevoID" column="vevoID"/>
+            <result property="Nev" column="Nev"/>
+            <result property="Nem" column="Nem"/>
+            <result property="Telefon" column="Telefon"/>
+        </resultMap>
+        
+        <select id="findAllCustomer" resultType="vevo" resultMap="vevoResult">
+            SELECT vevoID, Nev, Nem, Telefon FROM Vevo
+        </select>
+        
+        <select id="findCustomerById" parameterType="int" resultType="vevo" resultMap="vevoResult">
+            SELECT vevoID, Nev, Nem, Telefon FROM Vevo WHERE vevoID = #{vevoID}
+        </select>
+        
+        <insert id="insertCustomer" parameterType="vevo" keyProperty="vevoID">
+            INSERT into Vevo(vevoID, Nev, Nem, Telefon) 
+            	VALUES(#{vevoID},#{Nev},#{Nem},#{Telefon})
+        </insert>
+        
+    </mapper>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.msc.VMMapper">
+		<resultMap id="vmResult" type="vm">
+		    <result property="moziIDVM" column="moziID"/>
+		    <result property="vevoIDVM" column="vevoID"/>
+		</resultMap>
+
+		<resultMap id="moziResult" type="mozi">
+            <id property="moziID" column="moziID"/>
+            <result property="mNev" column="mNev"/>
+            <result property="Hely" column="Hely"/>
+        </resultMap>
+
+	    <select id="findAllCinemaCustomerRelationships" resultMap="vmResult">
+	        SELECT m.moziID, v.vevoID
+	        FROM mozik m
+	        INNER JOIN VM ON m.moziID = VM.moziIDVM
+	        INNER JOIN Vevo v ON VM.vevoIDVM = v.vevoID;
+	    </select>
+	    
+	    <select id="findCinemasWithCustomers" resultMap="moziResult">
+		    SELECT DISTINCT m.*
+		    FROM mozik m
+		    INNER JOIN VM ON m.moziID = VM.moziIDVM;
+		</select>
+		
+		<delete id="deleteCinemaRelationship" parameterType="int">
+		    DELETE FROM VM WHERE moziIDVM = #{moziID};
+		</delete>
+		
+		<insert id="insertRelationship" parameterType="vm">
+            INSERT into VM(moziIDVM, vevoIDVM) 
+            	VALUES(#{moziIDVM},#{vevoIDVM})
+        </insert>
+        
+    </mapper>
