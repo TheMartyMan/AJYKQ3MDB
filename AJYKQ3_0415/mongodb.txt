@@ -1,0 +1,134 @@
+// Mozi kollekció létrehozása
+db.createCollection("mozi");
+
+
+// Mozi kollekcióhoz hozzáadunk egyetlen elemet
+db.mozi.insertOne({
+    _id: "1",
+    nev: "Cinema City",
+    hely: "Miskolc",
+    allapot: "Felújítás alatt"
+});
+
+
+// Mozi kollekcióhoz hozzáadunk további elemeket egy parancsban
+db.mozi.insertMany([
+  {
+    _id: "2",
+    nev: "Cinema City",
+    hely: "Zalaegerszeg",
+    allapot: "Új"
+  },
+  {
+    _id: "3",
+    nev: "Cinema City",
+    hely: "Kaposvár",
+    allapot: "Új"
+  },
+  {
+    _id: "4",
+    nev: "Cinema City",
+    hely: "Budapest",
+    allapot: "Új"
+  },
+{
+    _id: "5",
+    nev: "Cinema City",
+    hely: "Sopron",
+    allapot: "Felújítás alatt"
+  }
+]);
+
+
+
+
+// Vevő kollekció létrehozása
+db.createCollection("vevo");
+
+
+// Vevő kollekcióhoz hozzáadunk egyetlen elemet
+db.vevo.insertOne({
+    _id: "01",
+    nev: "Teszt Elek",
+    nem: "Férfi",
+    telefon: "+36207264483"
+});
+
+
+// Vevő kollekcióhoz hozzáadunk további elemeket egy parancsban
+db.vevo.insertMany([
+  {
+    _id: "02",
+    nev: "Pál Inka",
+    nem: "Nő",
+    telefon: "+36706153233"
+  },
+  {
+    _id: "03",
+    nev: "Korda György",
+    nem: "Férfi",
+    telefon: "+36706154230"
+  },
+  {
+    _id: "04",
+    nev: "Colos Géza",
+    nem: "Férfi",
+    telefon: "+36306154531"
+  },
+  {
+    _id: "05",
+    nev: "Ulta Ibolya",
+    nem: "Nő",
+    telefon: "+36708353232"
+  },
+]);
+
+
+// Idegen kulcsok hozzáadása
+db.vevo.updateMany({}, { $set: { mozi_id: [] } });
+db.mozi.updateMany({}, { $set: { vevo_id: [] } });
+
+
+// Idegen kulcsok kitöltése
+db.vevo.updateOne({_id: "01"}, {$set: {mozi_id: ["1"]}});
+db.vevo.updateOne({_id: "02"}, {$set: {mozi_id: ["2", "3"]}});
+db.vevo.updateOne({_id: "03"}, {$set: {mozi_id: ["3"]}});
+
+db.mozi.updateOne({_id: "1"}, {$set: {vevo_id: ["01"]}});
+db.mozi.updateOne({_id: "2"}, {$set: {vevo_id: ["02"]}});
+db.mozi.updateOne({_id: "3"}, {$set: {vevo_id: ["03", "02"]}});
+
+
+// A mozikhoz adunk egy új mezőt: üzemképesség
+db.mozi.updateMany({}, { $set: { uzemkepes: "Igen" } });
+
+// Az éppen felújított mozik üzemképességét nemre állítjuk
+db.mozi.updateMany({ allapot: "Felújítás alatt" }, { $set: { uzemkepes: "Nem" } });
+
+// Töröljük a nem üzemképes mozikat
+db.mozi.deleteMany({ uzemkepes: "Nem" });
+
+
+// Azok a vevők, akiknek több mint egy kapcsolata van valamelyik mozival
+db.vevo.aggregate([
+  {
+    $lookup: {
+      from: "mozi",
+      localField: "_id",
+      foreignField: "vevo_id",
+      as: "moziLista"
+    }
+  },
+  {
+    $project: {
+      _id: 1,
+      nev: 1,
+      mozikSzama: { $size: "$moziLista" }
+    }
+  },
+  {
+    $match: {
+      mozikSzama: { $gt: 1 }
+    }
+  }
+]);
