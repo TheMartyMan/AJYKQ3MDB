@@ -11,6 +11,7 @@ db.system.js.save({
 db.eval("save_mozi('1', 'Cinema City', 'Eger', 'Felújítás alatt', 'Nem')")
 
 
+
 db.system.js.save({
     _id: "save_vevo",
     value: function(id, nev, nem, telefon, mozi_id) {
@@ -41,4 +42,8 @@ return "A getVevoByNev() függvény befejezte a futását."}
 
 
 
+db.mozi.aggregate([
+    {$group: {"_id":"$hely", "countc":{"$count":"$nev"}}},
+	{$sort: {"countc":-1}}
+])
 
