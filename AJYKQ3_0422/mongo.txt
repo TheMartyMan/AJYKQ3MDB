@@ -1,0 +1,44 @@
+db.system.js.save({
+    _id: "save_mozi",
+    value: function(id, nev, hely, allapot, uzemkepes) {
+    {{
+      {
+        db.mozi.insertOne({
+          _id:id, nev:nev, hely:hely, allapot:allapot, uzemkepes:uzemkepes})}}}
+    return "A save_mozi() függvény lefutott. " + nev + " " + hely + " hozzáadva. ID: " + id}
+})
+
+db.eval("save_mozi('1', 'Cinema City', 'Eger', 'Felújítás alatt', 'Nem')")
+
+
+db.system.js.save({
+    _id: "save_vevo",
+    value: function(id, nev, nem, telefon, mozi_id) {
+    {{
+      db.vevo.insertOne({
+        _id:id, nev:nev, nem:nem, telefon:telefon, mozi_id:mozi_id})}}
+    return "A save_vevo() függvény lefutott. " + nev + " vevő hozzáadva. ID: " + id}
+})
+
+
+db.eval("save_vevo('06', 'Teszt Géza', 'Férfi', '+36306245338', '2')")
+
+
+db.system.js.save({
+    _id: "getVevoByNev",
+    value: function(nev) {
+    {{
+      var q = db.vevo.find({
+        nev:nev
+      });
+      while (q.hasNext()) {
+        print(tojson(q.next()));
+      }
+    }
+  }
+return "A getVevoByNev() függvény befejezte a futását."}
+})
+
+
+
+
