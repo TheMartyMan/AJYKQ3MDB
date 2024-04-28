@@ -1,0 +1,149 @@
+
+
+DROP TYPE Filmek_o;
+DROP TYPE Film_o;
+
+
+1. Objektum létrehozása
+
+CREATE OR REPLACE TYPE Filmek_o AS OBJECT (
+    cim VARCHAR2(100),
+    mufaj VARCHAR2(20),
+    hosszPerc NUMBER,
+    rendezo VARCHAR2(100),
+    korhatar NUMBER,
+    megjelenes_ev NUMBER(4),
+    MEMBER FUNCTION get_hosszOra (H NUMBER) RETURN NUMBER,
+    MEMBER FUNCTION get_megjelenes (P NUMBER) RETURN NUMBER,
+    MEMBER PROCEDURE get_korhatar,
+    MEMBER PROCEDURE set_korhatar (G VARCHAR2)
+) NOT FINAL;
+
+
+
+
+
+2. Objektum kifejtése, body meghatározása, procedúrák és függvények létrehozása
+
+CREATE OR REPLACE TYPE BODY Filmek_o IS
+
+        MEMBER FUNCTION get_hosszOra (H NUMBER) RETURN NUMBER IS
+
+            BEGIN
+                RETURN (H/60);
+            END;
+
+        MEMBER FUNCTION get_megjelenes (P NUMBER) RETURN NUMBER IS
+
+            BEGIN
+                RETURN P;
+            END;
+
+        MEMBER PROCEDURE get_korhatar IS
+
+            BEGIN
+                DBMS_OUTPUT.PUT_LINE('A film korhatára: ' || SELF.korhatar);
+            END;
+
+
+        MEMBER PROCEDURE set_korhatar (G VARCHAR2) IS
+
+            BEGIN
+                IF (G = 'Horror' OR G = 'Thriller') THEN
+                    SELF.korhatar := 18;
+                ELSIF (G = 'Akció' OR G = 'Sci-fi') THEN
+                    SELF.korhatar := 16;
+                ELSE
+                    DBMS_OUTPUT.PUT_LINE('Ismeretlen műfaj, nincs megadot korhatár! Az alapértelmezett 12-es korhatár kerül beállításra.');
+                    SELF.korhatar := 12;
+                END IF;
+        END;
+END;
+
+
+
+
+
+3. Alobjektum létrehozása konstruktorral
+
+CREATE OR REPLACE TYPE Film_o UNDER Filmek_o (
+ 
+title VARCHAR2(100),
+genre VARCHAR2(20),
+movieLength NUMBER,
+director VARCHAR2(100),
+publication NUMBER(4),
+
+CONSTRUCTOR FUNCTION Film_o (
+    title VARCHAR2,
+    genre VARCHAR2,
+    movieLength NUMBER,
+    director VARCHAR2,
+    publication NUMBER
+)
+    RETURN SELF AS RESULT,
+        STATIC PROCEDURE film_adatok(title VARCHAR2, genre VARCHAR2, director VARCHAR2),
+		MEMBER FUNCTION get_kor RETURN NUMBER
+);
+
+
+
+
+
+4. Alobjektum kifejtése, body meghatározása, statikus procedúrák és függvények létrehozása
+
+CREATE OR REPLACE TYPE BODY Film_o AS
+    CONSTRUCTOR FUNCTION Film_o(
+        title VARCHAR2,
+        genre VARCHAR2,
+        movieLength NUMBER,
+        director VARCHAR2,
+        publication NUMBER)
+    RETURN SELF AS RESULT AS
+        BEGIN
+            SELF.title := title;
+            SELF.genre := genre;
+            SELF.movieLength := movieLength;
+            SELF.director := director;
+            SELF.publication := publication;
+                RETURN;
+        END;
+
+
+    STATIC PROCEDURE film_adatok(title VARCHAR2, genre VARCHAR2, director VARCHAR2) AS
+        BEGIN
+            DBMS_OUTPUT.PUT_LINE('------ A film adatai ------');
+            DBMS_OUTPUT.NEW_LINE;
+            DBMS_OUTPUT.NEW_LINE;
+            DBMS_OUTPUT.PUT_LINE('A film címe: ' || title);
+			DBMS_OUTPUT.PUT_LINE('Műfaja: ' || genre);
+            DBMS_OUTPUT.PUT_LINE('Rendezte: ' || director);
+            DBMS_OUTPUT.NEW_LINE;
+        END;
+
+
+    MEMBER FUNCTION get_kor RETURN NUMBER AS
+        BEGIN
+            RETURN TO_CHAR(SYSDATE,'YYYY') - SELF.publication;
+        END;
+END;
+
+
+
+
+
+5. Futtatás, függvények és procedúrák tesztelése
+
+
+DECLARE
+film Film_o;
+BEGIN
+    FILM := Film_o('The Ring', 'Horror', 115, 'Gore Verbinski', 2010);
+    Film_o.film_adatok(film.title, film.genre, film.director);
+    DBMS_OUTPUT.PUT_LINE('A film hossza ' || film.movieLength || ' perc, vagyis ' || Film.get_hosszOra(film.movieLength) || ' óra.');
+    Film.set_korhatar(film.genre);
+    Film.get_korhatar();
+    DBMS_OUTPUT.PUT_LINE('A film ' || Film.get_kor() || ' éves.');
+END;
+
+
