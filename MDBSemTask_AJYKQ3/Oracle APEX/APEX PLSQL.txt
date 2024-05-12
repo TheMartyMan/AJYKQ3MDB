@@ -1,0 +1,85 @@
+CREATE TYPE film_type AS OBJECT (
+  name VARCHAR2(255),
+  production_year NUMBER,
+  director VARCHAR2(255),
+  price NUMBER
+);
+
+
+CREATE TABLE film_showroom (
+  film_id NUMBER GENERATED ALWAYS AS IDENTITY,
+  film film_type
+);
+
+
+BEGIN
+
+INSERT INTO film_showroom (film) VALUES (
+  film_type('The Shawshank Redemption', 1994, 'Frank Darabont', 1100)
+);
+
+INSERT INTO film_showroom (film) VALUES (
+  film_type('The Godfather', 1972, 'Francis Ford Coppola', 900)
+);
+
+INSERT INTO film_showroom (film) VALUES (
+  film_type('The Dark Knight', 2008, 'Christopher Nolan', 1300)
+);
+
+INSERT INTO film_showroom (film) VALUES (
+  film_type('Pulp Fiction', 1994, 'Quentin Tarantino', 1000)
+);
+
+INSERT INTO film_showroom (film) VALUES (
+  film_type('Forrest Gump', 1994, 'Robert Zemeckis', 950)
+);
+
+END;
+
+
+SELECT f.film.name AS film_name FROM film_showroom f;
+SELECT f.film.price AS film_price FROM film_showroom f;
+
+
+UPDATE film_showroom f SET f.film.price = 900 WHERE f.film.production_year < 2019;
+
+
+CREATE TYPE nested_film_table IS TABLE OF film_type;
+
+
+CREATE TABLE showroom_network (
+  id NUMBER,
+  cinema VARCHAR2(255),
+  film_table nested_film_table)
+  NESTED TABLE film_table STORE AS nested_film_tables
+
+
+INSERT INTO showroom_network (cinema) VALUES ('Cinema City Miskolc');
+INSERT INTO showroom_network (cinema) VALUES ('Cinema City Debrecen');
+
+
+UPDATE showroom_network
+SET film_table = nested_film_table(
+  film_type('Schindlers List', 1993, 'Steven Spielberg', 1800),
+  film_type('Inglourious Basterds', 2009, 'Quentin Tarantino', 2200)
+)
+WHERE cinema = 'Cinema City Miskolc';
+
+UPDATE showroom_network
+SET film_table = nested_film_table(
+  film_type('The Lord of the Rings: The Return of the King', 2003, 'Peter Jackson', 1700)
+)
+WHERE cinema = 'Cinema City Debrecen';
+
+
+SELECT film_table FROM showroom_network WHERE cinema = 'Cinema City Miskolc';
+
+
+
+SELECT id, cinema, film_table FROM showroom_network;
+SELECT * FROM showroom_network;
+
+
+
+SELECT id, cinema, f.* FROM showroom_network s, TABLE(s.film_table) f;
+
